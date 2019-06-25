@@ -18,170 +18,99 @@ namespace Tavisca.Bootcamp.LanguageBasics.Exercise1
         private static void Test(string args, int expected)
         {
             var result = FindDigit(args).Equals(expected) ? "PASS" : "FAIL";
-            Console.WriteLine($"{args} : {result}");
+            Console.WriteLine("{0} : {1}",args,result);
         }
 
         public static int FindDigit(string equation)
         {
-            // Add your code here  .
-			
-			int no1, no2, no3;
-                char[] splitchars = { '=' };
-                string[] numbers = equation.Split(splitchars);
+         	   int no1, no2, no3;
+                string qMark = "?";
+                
+                string[] LHSRHS = equation.Split('=');
+                string LHS =LHSRHS[0];
+                string RHS =LHSRHS[1];
 
-                char[] splitcharsR = { '?' };
-                string[] numbersR = numbers[1].Split(splitcharsR);
+                string[] Split_LHS = LHS.Split('*');
+                string[] LHS_Split_LHS = Split_LHS[0].Split('?');    
+                string[] RHS_Split_LHS = Split_LHS[1].Split('?');
 
-                int len = numbersR.Length;           
-
-              if(len == 2)
+                if (RHS.Contains(qMark))
                 {
                     // Right side ? mark
-                    char[] splitcharsR1 = { '*' };
-                    string[] numbersR1 = numbers[0].Split(splitcharsR1);
-
-                    no1 = int.Parse(numbersR1[0]);
-                    no2 = int.Parse(numbersR1[1]); ;
+                    no1 = int.Parse(Split_LHS[0]);
+                    no2 = int.Parse(Split_LHS[1]); ;
                     no3 = no1 * no2;
-
-                    int index = numbers[1].IndexOf('?');
-                    index=index+1;
-
-                    int[] n = new int[1000];
-                    int c = 0;
-
-                    while (no3 != 0)
-                    {
-                        n[c] = no3 % 10;
-                        no3 = no3 / 10;
-                        c++;
-                    }
-               
-                    c=c-index;
-                    return n[c];
+                    int number = getMissingDigit(no3, LHSRHS[1]);
+                    return number;
                 }
                 else
                 {
-                    // For left side ?
-                    char[] splitcharsR1 = { '*' };
-                    string[] numbersL1 = numbers[0].Split(splitcharsR1);
-
-                    int L0 = numbersL1[0].IndexOf('?');
-                    int L1 = numbersL1[1].IndexOf('?');
-
-                    no3 = int.Parse(numbers[1]);
-                    
-                    if (L0 == -1) // ? not avilable at 1st no 
+                    no3 = int.Parse(LHSRHS[1]);
+                    if (Split_LHS[0].Contains(qMark)) // ? not avilable at 1st no 
                     {
                         // 2nd no contain ?
-       
-                        char[] splitcharsL2 = { '?' };
-                        string[] numbersL2 = numbersL1[1].Split(splitcharsL2);
-
-                        L1 = L1 + 1;
-                        no1 = int.Parse(numbersL1[0]);                        
-
-                        //for 2*2?=4
-                        if (string.IsNullOrEmpty(numbersL2[0]))
-                        {
-                            int check = int.Parse(numbersL2[1]);
-                            int i = check * no1;
-                            if (i == no3)
-                                return -1;
-                        }
+                        no1 = int.Parse(Split_LHS[1]);
+                        no2 = no3 / no1;
+                        if (checkConditions(no1, no3, Split_LHS[0]) == -1)
+                            return -1;
                         else
-                        {
-                            int check = int.Parse(numbersL2[0]);
-                            int i = check * no1;
-                            if (i == no3)
-                                return -1;
-                        }
-                        
-                            int[] n = new int[1000];
-                            int c = 0;
-
-                        //invalid division
-                            decimal d = (decimal)no3 / no1;
-                            if ((d % 1) > 0)
-                            {
-                                return -1;
-                            }
-
-                        //to find number
-                            no2 = no3 / no1;    
-                         
-                            while (no2 != 0)
-                            {
-                                n[c] = no2 % 10;
-                                no2 = no2 / 10;
-                                c++;
-                            }
-
-                            int m = c;
-                            c = c - L1;
-                            if (c < 0 || c > m-1)
-                                return -1;
-
-                          return n[c];
-                        
-                    }
+                          return  getMissingDigit(no2, Split_LHS[0]);
+                     }
                     else  // ? not avilable at 2nd number
                     {
-                       // 1st no contain ?
-
-                       L0 = L0 + 1;
-                       no2 = int.Parse(numbersL1[1]);
-
-                       char[] splitcharsL2 = { '?' };
-                       string[] numbersL2 = numbersL1[0].Split(splitcharsL2);
-                      
-                        
-                       //for 2?*2=4
-                       if (string.IsNullOrEmpty(numbersL2[0]))
-                       {
-                           int check = int.Parse(numbersL2[1]);
-                           int i = check * no2;
-                           if (i == no3)
+                        // 1st no contain ?
+                        no1 = int.Parse(Split_LHS[0]);
+                        no2 = no3 / no1;
+                        if (checkConditions(no1, no3, Split_LHS[1]) == -1)
                             return -1;
+                        else
+                            return getMissingDigit(no2, Split_LHS[1]);
+                    }
 
-                       }
-                       else
-                       {
-                           int check = int.Parse(numbersL2[0]);
-                           int i = check * no2;
-                           if (i == no3)
-                               return -1;
-                       }
-
-                           int[] n = new int[1000];
-                           int c = 0;
-                        //invalid division
-                           decimal d = (decimal)no3 / no2;
-                           if ((d % 1) > 0)
-                           {
-                               return -1;
-                           }
-                           
-                            no1 = no3 / no2;
-                        //find no
-                           while (no1 != 0)
-                           {
-                               n[c] = no1 % 10;
-                               no1 = no1 / 10;
-                               c++;
-                           }
-
-                           int m = c;
-                           c = c - L0;
-                           if (c < 0 || c > m - 1)
-                               return -1;  
-                        return n[c];
-                   }
-   
                 }
-              return -1;     
-			
+
             throw new NotImplementedException();
+        }
+
+        public static int checkConditions(int no1, int no2, string Split_LHS)
+        {
+            string[] FindQmark = Split_LHS.Split('?');
+            int no3=0;  
+
+            if (string.IsNullOrEmpty(FindQmark[0]))
+               no3 = int.Parse(FindQmark[1]);         
+
+            if (string.IsNullOrEmpty(FindQmark[1]))
+             no3 = int.Parse(FindQmark[0]);
+            
+            int CalculatedValue = no1 * no3;
+            if (CalculatedValue == no2)
+              return -1;
+
+            decimal d = (decimal)no2 / no1;
+            if ((d % 1) > 0)
+                return -1;
+            
+            return 0;
+        }
+        
+        public static int getMissingDigit(int no3,string String)
+        {
+            int index = String.IndexOf('?');
+            index = index + 1;
+
+            int[] n = new int[1000];
+            int temp = 0;
+
+            while (no3 != 0)
+            {
+                n[temp] = no3 % 10;
+                no3 = no3 / 10;
+                temp++;
+            }
+
+            temp = temp - index;
+            return n[temp];
         }
     }
 }
